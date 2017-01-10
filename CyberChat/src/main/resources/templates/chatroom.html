@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>CyberChat</title>
+        <meta charset="UTF-8" />
+    </head>
+    <body>
+        <h1>CyberChat room</h1>
+        
+        <table>
+            <tr>
+                <th style="text-align: left">Time</th>
+                <th style="text-align: left">User</th>
+                <th style="text-align: left">Message</th>
+            </tr>
+            <tr th:each="chatMessageList : ${chatmessages}">
+                <td style="text-align: left" th:text="${chatMessageList.timestamp}">Timestamp</td>
+                <td style="text-align: left" th:text="${chatMessageList.username}">Username</td>
+                <td style="text-align: left" th:text="${chatMessageList.message}">Message</td>
+            </tr>
+        </table>
+        
+        <form action="#" th:action="@{/chatroom}" method="POST">
+            <p>Your message: <input type="text" name="message"/></p>
+            <input type="hidden" name="name" th:value="${username}"/>
+            <p><input type="submit" value="Say it" /></p>
+        </form>
+    </body>
+</html>

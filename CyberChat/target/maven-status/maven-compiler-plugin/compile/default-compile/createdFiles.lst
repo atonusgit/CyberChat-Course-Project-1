@@ -1,0 +1,7 @@
+ato/cyberchat/ChatApplication.class
+ato/cyberchat/controller/DefaultController.class
+ato/cyberchat/domain/ChatMessage.class
+ato/cyberchat/controller/LoginController.class
+ato/cyberchat/domain/ChatAccount.class
+ato/cyberchat/repository/chatAccountRepository.class
+ato/cyberchat/database/ChatDatabase.class
