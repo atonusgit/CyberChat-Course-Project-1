@@ -2,48 +2,95 @@ package ato.cyberchat.controller;
 
 import ato.cyberchat.database.ChatDatabase;
 import ato.cyberchat.domain.ChatMessage;
+import java.io.FileReader;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import org.h2.tools.RunScript;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 public class LoginController
 {
     String username = "";
     String password = "";
+    String givenPassword = "";
+    
+    public static void init() throws SQLException
+    {
+        
+        // User database
+        Connection connection = DriverManager.getConnection("jdbc:h2:file:./user_database", "sa", "");
+        try {
+            // If database has not yet been created, insert content
+            RunScript.execute(connection, new FileReader("sql/user_database-schema.sql"));
+            RunScript.execute(connection, new FileReader("sql/user_database-import.sql"));
+        }
+        catch (Throwable t
+
+
+            ) {
+                System.err.println(t.getMessage());
+        }
+
+        connection.close ();
+        
+    }
     
     @RequestMapping("/login")
-    public String login()
+    public String login() throws SQLException
     {
+        LoginController.init();
         return "login";
     }
     
     @RequestMapping(value = "/login", method = RequestMethod.POST)
-    public String gate(@RequestParam("username") String usernamePOST, @RequestParam("password") String passwordPOST)
+    public String gate(@RequestParam("username") String usernamePOST, @RequestParam("password") String passwordPOST) throws SQLException
     {
         username = usernamePOST;
         password = passwordPOST;
         
-        if (username.equals("atonus") && password.equals("123"))
-        {
-            return "redirect:/chatroom";
+        // Open connection
+        Connection connection = DriverManager.getConnection("jdbc:h2:file:./user_database", "sa", "");
+        
+        // Execute query // UNSECURE
+        String query = "SELECT pw FROM users WHERE usr = '" + username + "'";
+        System.out.println(query);
+        ResultSet rs = connection.createStatement().executeQuery(query);
+        
+        try {
+            while (rs.next()) {
+                givenPassword = rs.getString(1);
+                System.out.println("INPUR PW: " + password + " DB PW: "+ givenPassword);
+                
+                connection.close();
+                
+                if (password.equals(givenPassword))
+                {
+                    return "redirect:/chatroom";
+                } else {
+                    return "redirect:/login";
+                }
+                
+            }
+        } finally {
+            rs.close();
         }
-        else
-        {
-            return "redirect:/login";
-        }
+
+        return "redirect:/login";
     }
     
     // @ResponseBody
     @RequestMapping("/chatroom")
     public String chatroom(Model model) throws SQLException
     {
-        if (username.equals("atonus") && password.equals("123"))
+        if (password.equals(givenPassword))
         {
             ChatDatabase.init();
             
