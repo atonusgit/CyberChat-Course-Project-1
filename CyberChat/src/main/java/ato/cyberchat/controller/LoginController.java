@@ -20,7 +20,7 @@ public class LoginController
 {
     String username = "";
     String password = "";
-    String givenPassword = "";
+    String givenPassword = "x";
     
     public static void init() throws SQLException
     {
